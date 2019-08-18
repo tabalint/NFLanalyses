@@ -15,6 +15,7 @@ punt_fields = [x for x in fields if x not in ['gsis_id', 'play_id', 'down', 'yar
 filename = 'all_punts.csv'
 
 
+# Do the NFLDB query and save the result to CSV
 def save_punt_data():
     print('Getting punt data from NFLDB')
     db = nfldb.connect()
