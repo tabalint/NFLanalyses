@@ -22,35 +22,53 @@ def calculate_n_coaches():
 
 
 coaches_data = calculate_n_coaches()
-coaches_data['coaches_per_year'] = coaches_data['n_coaches']/coaches_data['n_years']
+coaches_data['years_per_coach'] = coaches_data['n_years']/coaches_data['n_coaches']
 
-print(coaches_data)
-
-# graph time
 style.use('fivethirtyeight')
-flierprops = dict(marker='o', markersize=12, alpha=1, markerfacecolor='#008fd5', markeredgecolor='#008fd5')
-ax = coaches_data.boxplot('coaches_per_year', whis=[5, 95],
+
+
+# Creates a vertical boxplot of years/coach data
+def coach_tenure_boxplot(coach_df: pd.DataFrame):
+    flier_props = dict(marker='o', markersize=12, alpha=1, markerfacecolor='#008fd5', markeredgecolor='#008fd5')
+    ax = coach_df.boxplot('years_per_coach', whis=[5, 95],
                           patch_artist=True,
-                          flierprops=flierprops)
-ax.title._text = ''
-ax.xaxis.labels=False
+                          flierprops=flier_props)
+    ax.title._text = ''
+    ax.xaxis.labels = False
 
-upper_whisker = coaches_data['coaches_per_year'].quantile(0.95)
-lower_whisker = coaches_data['coaches_per_year'].quantile(0.05)
+    # annotate outliers - first calculate the ends of the whiskers
+    upper_whisker = coach_df['years_per_coach'].quantile(0.95)
+    lower_whisker = coach_df['years_per_coach'].quantile(0.05)
 
-# annotate outliers
-for row in coaches_data.iterrows():
-    if row[1].coaches_per_year > upper_whisker or row[1].coaches_per_year < lower_whisker:
-        plt.annotate(row[0], (1.015, row[1].coaches_per_year-0.0044))
+    # using that, put labels on the outliers
+    for row in coach_df.iterrows():
+        if row[1].years_per_coach > upper_whisker or row[1].years_per_coach < lower_whisker:
+            plt.annotate(row[0], (1.015, row[1].years_per_coach-0.17))
 
-plt.tick_params(axis='x', bottom=False, labelbottom=False)
-plt.suptitle('Coaches Per Year', ha='right', fontsize='26')
-plt.title('1959-2019 Regular Season', loc='left', fontsize='16')
+    # x-axis and titles
+    plt.tick_params(axis='x', bottom=False, labelbottom=False)
+    plt.suptitle('   Average Coach Tenure', ha='right', fontsize='24')
+    plt.title('1969-2019 Regular Season', loc='left', fontsize='16')
 
-plt.tight_layout()
-plt.axhline(y=0, color='black', linewidth=1.3, alpha=.7)
-plt.text(x=0.4, y=-0.03,
-         s='footballstatsaredumb.wordpress.com',
-         fontsize=14, color='xkcd:darkgreen', ha='left')
+    plt.tight_layout()
+    plt.axhline(y=0, color='black', linewidth=1.3, alpha=.7)
+    plt.text(x=0.43, y=-1,
+             s='footballstatsaredumb.wordpress.com',
+             fontsize=14, color='xkcd:darkgreen', ha='left')
 
-plt.show()
+    plt.show()
+
+
+# Calculate distribution's statistics and z-score, print
+def calculate_stats(coaches_df: pd.DataFrame):
+    std = coaches_df['years_per_coach'].std()
+    avg = coaches_df['years_per_coach'].mean()
+    median = coaches_df['years_per_coach'].median()
+    print("mean={mean}, median={median}, std={std}".format(mean=avg, median=median, std=std))
+    coaches_df['z_score'] = (coaches_df['years_per_coach'] - avg)/std
+
+    print(coaches_df.sort_values(['z_score']))
+
+
+coach_tenure_boxplot(coaches_data)
+calculate_stats(coaches_data)
