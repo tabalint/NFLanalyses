@@ -1,5 +1,5 @@
 import pandas as pd
-from utilities import team_functions as tf
+from pynfldata.data_tools import team_functions as tf
 from matplotlib import pyplot as plt
 import matplotlib.style as style
 
